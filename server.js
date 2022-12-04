@@ -5,8 +5,17 @@ const app = express()
 const path = require('path')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
-const User = require('./models/user')
+const { User, JobPosting, Application } = require('./models/data_models')
 var bodyParser = require('body-parser');
+const { Client } = require('pg');
+
+const client = new Client({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'postgres',
+  password: '12345',
+  port: 4321,
+});
 
 
 // Logging 
@@ -85,11 +94,19 @@ app.route('/signup')
     User.create({
       email: req.body.email,
       password: req.body.password,
-      recruiter: req.body.recruiter ? true : false
+      recruiter: req.body.recruiter ? true : false,
+      yoe: req.body.yoe,
+      skillset: req.body.skillset,
+      jobtitle: req.body.jobtitle
     })
       .then(user => {
         req.session.user = user.dataValues;
-        res.redirect('/dashboard');
+        if (req.session.user.recruiter) {
+          res.redirect('/dashboard');
+        }
+        else {
+          res.redirect('/candidate_dashboard');
+        }
       })
       .catch(error => {
         console.log(error)
@@ -117,27 +134,45 @@ app.route('/login')
         res.redirect('/login');
       } else {
         req.session.user = user.dataValues;
-        res.redirect('/dashboard');
+        if (req.session.user.recruiter) {
+          res.redirect('/dashboard');
+        }
+        else {
+          res.redirect('candidate_dashboard');
+        }
+
       }
     });
   });
 
+app.get('/about', (req, res) => {
+  res.render('about');
+})
 
-// route for user's dashboard
+// route for recruiter's dashboard
 app.get('/dashboard', (req, res) => {
   if (req.session.user && req.cookies.user_sid) {
-    hbsContent.loggedin = true;
-    hbsContent.email = req.session.user.email;
-    //console.log(JSON.stringify(req.session.user)); 
-    console.log(req.session.user.email);
-    hbsContent.title = "You are logged in";
-    //res.sendFile(__dirname + '/public/dashboard.html');
-    res.render('dashboard', hbsContent);
+    if (req.session.user.recruiter) {
+      res.render('dashboard');
+    }
+    else {
+      res.redirect('candidate_dashboard');
+    }
+
   } else {
     res.redirect('/login');
   }
 });
 
+
+// route for candidate's dashboard
+app.get('/candidate_dashboard', (req, res) => {
+  if (req.session.user && req.cookies.user_sid) {
+    res.render('candidate_dashboard');
+  } else {
+    res.redirect('/login');
+  }
+});
 
 // route for user logout
 app.get('/logout', (req, res) => {
@@ -152,6 +187,126 @@ app.get('/logout', (req, res) => {
   }
 });
 
+
+// route for create a job post
+app.get('/create_job', (req, res) => {
+  if (req.session.user && req.cookies.user_sid) {
+    res.render('create_job', {
+      layout: 'main'
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+
+app.post('/create_job', (req, res) => {
+  if (req.session.user && req.cookies.user_sid) {
+    JobPosting.create({
+      job_title: req.body.job_title,
+      yoe_required: req.body.yoe,
+      salary: req.body.salary,
+      skills_required: req.body.skills,
+      recruiter_id: req.session.user.id
+    })
+
+    res.redirect('/recruiter_posted_jobs')
+  }
+  else {
+    res.redirect('/login');
+  }
+
+});
+
+app.get('/recruiter_posted_jobs', (req, res) => {
+  if (req.session.user && req.cookies.user_sid) {
+    JobPosting.findAll({
+      where: {
+        recruiter_id: req.session.user.id
+      }
+    }).then(function (job_postings) {
+      const jobs = []
+      job_postings.forEach(function (posting, index) {
+        jobs.push(posting.dataValues)
+      })
+      res.render('recruiter_posted_jobs', { jobs })
+    })
+  }
+  else {
+    res.redirect('/login');
+  }
+
+});
+
+// route for user Login
+app.route('/apply')
+  .get(async (req, res) => {
+    if (req.session.user && req.cookies.user_sid) {
+      const apps = await Application.findAll({
+        where: {
+          candidate_id: req.session.user.id
+        }
+      }).then((function (applications) {
+        const ids = new Set()
+        applications.forEach(function (app, i) {
+          ids.add(app.job_id)
+        })
+        return ids;
+      }))
+
+      JobPosting.findAll().then((function (job_postings) {
+        const jobs = []
+        job_postings.forEach(function (posting, index) {
+          if (!apps.has(posting.dataValues.job_id))
+            jobs.push(posting.dataValues)
+        })
+        res.render('apply', { jobs })
+      }))
+    }
+    else {
+      res.redirect('/login');
+    }
+  }
+  )
+  .post((req, res) => {
+    Application.create({
+      candidate_id: req.session.user.id,
+      job_id: req.body.job_id,
+    })
+    res.redirect('/apply')
+  });
+
+app.get('/applications', async (req, res) => {
+  if (req.session.user && req.cookies.user_sid) {
+    const apps = await User.findAll({
+      include: [
+        {
+          model: Application,
+          required: true,
+        }
+      ],
+      where: {
+        id: req.session.user.id
+      }
+    })
+    const ids = new Set()
+    apps[0].applications.forEach(function (app, i) {
+      ids.add(app.dataValues.job_id)
+    })
+  
+    JobPosting.findAll().then((function (job_postings) {
+      const jobs = []
+      job_postings.forEach(function (posting, index) {
+        if (ids.has(posting.dataValues.job_id))
+          jobs.push(posting.dataValues)
+      })
+      res.render('applications', { jobs })
+    }))
+  }
+  else {
+    res.redirect('/login');
+  }
+
+});
 
 // route for handling 404 requests(unavailable routes)
 app.use(function (req, res, next) {

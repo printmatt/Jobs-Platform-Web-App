@@ -1,3 +1,10 @@
+input {
+    width: 200px;
+}
+
+input, select, textarea{
+    color: #ffffff;
+}
 *{
     margin: 0;
     padding: 0;

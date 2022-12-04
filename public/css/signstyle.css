@@ -3,6 +3,10 @@
 	box-sizing: border-box;
 }
 
+input, select, textarea{
+    color: #ffffff;
+}
+
 body {
     background-image: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url(backgroundsign.jpg);
     background-size: cover;
@@ -32,6 +36,7 @@ h2 {
 }
 
 p {
+	color: #DDDDDD;
 	font-size: 15px;
 	font-weight: 100;
 	line-height: 20px;
@@ -51,7 +56,7 @@ span {
 }
 
 a {
-	color: #333;
+	color: #DDDDDD;
 	font-size: 14px;
 	text-decoration: none;
 	margin: 15px 0;
@@ -71,9 +76,6 @@ button {
     
 }
 
-button: hover{
-    width: 100%;
-}
 button:active {
 	transform: scale(0.95);
 }
@@ -88,7 +90,7 @@ button.ghost {
 }
 
 form {
-	background-color: #fff;
+	background-color: transparent;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -100,7 +102,7 @@ form {
 
 input {
 	background-color: #eee;
-	border: none;
+	border:#8C7950;
 	padding: 12px 15px;
 	margin: 8px 0;
 	width: 100%;

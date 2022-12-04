@@ -1,7 +1,0 @@
-.container {
-   background-image: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url(background.jpg);
-   background-size: cover;
-   background-position: center;
-   width: 100vh;
-   height: 100vh;
-}

@@ -1,0 +1,38 @@
+<div class="banner">
+    <div class="navbar">
+        <a href="/" class="center-align"><img src="css/logo.png" class="signlogo"></a>
+        <ul>
+            <li><a href="dashboard">Home</a></li>
+            <li><a href="applications">Applications</a></li>
+            <li><a href="about">About Us</a></li>
+        </ul>
+    </div>
+    <div class="content">
+        {{#if jobs}}
+        <table class="striped">
+            <thead>
+                <tr>
+                    <th>Job ID</th>
+                    <th>Title</th>
+                    <th>YOE Required</th>
+                    <th>Required Skills</th>
+                    <th>Salary</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each jobs}}
+                <tr>
+                    <td>{{job_id}}</td>
+                    <td>{{job_title}}</a></td>
+                    <td>{{yoe_required}}</td>
+                    <td>{{skills_required}}</td>
+                    <td>{{salary}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        {{else}}
+        <p>You have not applied to any job</p>
+        {{/if}}
+    </div>
+</div>
