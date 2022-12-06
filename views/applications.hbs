@@ -17,6 +17,7 @@
                     <th>YOE Required</th>
                     <th>Required Skills</th>
                     <th>Salary</th>
+                    <th>Company Name</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,12 +28,13 @@
                     <td>{{yoe_required}}</td>
                     <td>{{skills_required}}</td>
                     <td>{{salary}}</td>
+                    <td>{{company_name}}</td>
                 </tr>
                 {{/each}}
             </tbody>
         </table>
         {{else}}
-        <p>You have not applied to any job</p>
+        <p>You have not applied to any jobs.</p>
         {{/if}}
     </div>
 </div>

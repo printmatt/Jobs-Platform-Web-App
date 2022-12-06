@@ -17,7 +17,8 @@
                     <th>YOE Required</th>
                     <th>Required Skills</th>
                     <th>Salary</th>
-
+                    <th>Company Name</th>
+                    <th>Apply Using Your Profile</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,6 +29,7 @@
                     <td>{{yoe_required}}</td>
                     <td>{{skills_required}}</td>
                     <td>{{salary}}</td>
+                    <td>{{company_name}}</td>
                     <td>
                         <form action="/apply" method="POST" id="apply_form">
                             <input type="hidden" name="job_id" value="{{job_id}}">

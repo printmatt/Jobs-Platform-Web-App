@@ -1,0 +1,22 @@
+version : '3.9'
+
+services:
+  db:
+    image: 'postgres'
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_PASSWORD: '12345'
+      POSTGRES_USER: 'docker'
+    volumes:
+      - data:/val/lib/postgresql/data
+  server:
+    build: .
+    ports:
+      - '5000:5000'
+    depends_on:
+      - db
+
+
+volumes:
+  data:

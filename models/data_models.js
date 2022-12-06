@@ -2,9 +2,8 @@ var Sequelize = require('sequelize');
 var bcrypt = require('bcrypt');
 
 // create a sequelize instance with our local postgres database information.
-const sequelize = new Sequelize('postgres', 'postgres', '12345', {
-    host: 'localhost',
-    port: 4321,
+const sequelize = new Sequelize('docker', 'docker', '12345', {
+    host: 'db',
     dialect: 'postgres',
     pool: {
         max: 5,
@@ -12,7 +11,6 @@ const sequelize = new Sequelize('postgres', 'postgres', '12345', {
         acquire: 30000,
         idle: 10000
     },
-    operatorsAliases: false
 });
 
 // setup User model and its fields.
@@ -32,6 +30,10 @@ var User = sequelize.define('users', {
     password: {
         type: Sequelize.STRING,
         allowNull: false
+    },
+    name: {
+        type: Sequelize.STRING,
+        allowNull: false,
     },
     recruiter: {
         type: Sequelize.BOOLEAN,
@@ -85,6 +87,10 @@ var JobPosting = sequelize.define('jobpostings', {
         type: Sequelize.STRING,
         allowNull: false,
     },
+    company_name: {
+        type: Sequelize.STRING,
+        allowNull: false
+    }
 });
 
 var Application = sequelize.define('applications', {

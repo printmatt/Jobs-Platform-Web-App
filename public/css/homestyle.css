@@ -121,3 +121,16 @@ button:hover{
 button:active {
 	transform: scale(0.95);
 }
+
+form {
+    align-items: center;
+    text-align: center;
+}
+
+th{
+    text-align: center;
+}
+
+td{
+    text-align: center;
+}

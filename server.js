@@ -61,8 +61,6 @@ app.use((req, res, next) => {
   next();
 });
 
-const hbsContent = { email: '', loggedin: false, title: "You are not logged in today", body: "Hello World" };
-
 // middleware function to check for logged-in users
 const sessionChecker = (req, res, next) => {
   if (req.session.user && req.cookies.user_sid) {
@@ -94,6 +92,7 @@ app.route('/signup')
     User.create({
       email: req.body.email,
       password: req.body.password,
+      name: req.body.name,
       recruiter: req.body.recruiter ? true : false,
       yoe: req.body.yoe,
       skillset: req.body.skillset,
@@ -177,10 +176,7 @@ app.get('/candidate_dashboard', (req, res) => {
 // route for user logout
 app.get('/logout', (req, res) => {
   if (req.session.user && req.cookies.user_sid) {
-    hbsContent.loggedin = false;
-    hbsContent.title = "You are logged out!";
     res.clearCookie('user_sid');
-    console.log(JSON.stringify(hbsContent));
     res.redirect('/');
   } else {
     res.redirect('/login');
@@ -199,13 +195,14 @@ app.get('/create_job', (req, res) => {
   }
 });
 
-app.post('/create_job', (req, res) => {
+app.post('/create_job', async (req, res) => {
   if (req.session.user && req.cookies.user_sid) {
-    JobPosting.create({
+    await JobPosting.create({
       job_title: req.body.job_title,
       yoe_required: req.body.yoe,
       salary: req.body.salary,
       skills_required: req.body.skills,
+      company_name: req.body.company_name,
       recruiter_id: req.session.user.id
     })
 
@@ -267,8 +264,8 @@ app.route('/apply')
     }
   }
   )
-  .post((req, res) => {
-    Application.create({
+  .post(async (req, res) => {
+    await Application.create({
       candidate_id: req.session.user.id,
       job_id: req.body.job_id,
     })
@@ -288,6 +285,12 @@ app.get('/applications', async (req, res) => {
         id: req.session.user.id
       }
     })
+
+    if(typeof apps[0] === 'undefined'){
+      res.render('applications',[])
+      return;
+    }
+
     const ids = new Set()
     apps[0].applications.forEach(function (app, i) {
       ids.add(app.dataValues.job_id)
